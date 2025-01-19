@@ -1,26 +1,11 @@
-// 开始滚动函数
-function startScrolling() {
-    if (!isScrolling) {
-        isScrolling = true;
-        startButton.disabled = true;
-        stopButton.disabled = false;
-        // 启动滚动循环
-        scrollLoop();
-    }
-}
-
-// 停止滚动函数
-function stopScrolling() {
-    if (isScrolling) {
-        isScrolling = false;
-        startButton.disabled = false;
-        stopButton.disabled = true;
-        clearInterval(intervalId);
-    }
-}
-
 // 滚动页面函数，修改为滚动 Readweb 元素
 function scrollPage() {
+    console.log('scrollPage 函数被调用');
+    let readwebElement = document.getElementById('Readweb');
+    if (!readwebElement) {
+        console.error('未找到 id 为 Readweb 的元素');
+        return;
+    }
     let scrollTop = readwebElement.scrollTop;
     let scrollHeight = readwebElement.scrollHeight;
     let clientHeight = readwebElement.clientHeight;
@@ -33,33 +18,38 @@ function scrollPage() {
 }
 
 // 滚动循环函数
-async function scrollLoop() {
+function scrollLoop() {
+    console.log('scrollLoop 函数被调用');
     while (isScrolling) {
         // 正常滚动 5 秒
         intervalId = setInterval(scrollPage, 10);
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        clearInterval(intervalId);
-
-        // 暂停 10 秒
-        await new Promise(resolve => setTimeout(resolve, 10000));
-
-        // 随机加快速度
-        let randomSpeedFactor = Math.random() * 2 + 1; // 1 到 3 之间的随机数
-        speed = originalSpeed * randomSpeedFactor;
-        // 以新速度滚动 4 秒
-        intervalId = setInterval(scrollPage, 10);
-        await new Promise(resolve => setTimeout(resolve, 4000));
-        clearInterval(intervalId);
-
-        // 恢复原始速度
-        speed = originalSpeed;
-        // 以原始速度滚动 1 秒
-        intervalId = setInterval(scrollPage, 10);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        clearInterval(intervalId);
-
-        // 随机暂停不低于 20 秒且不超过 1 分钟
-        let randomPauseTime = Math.random() * 40000 + 20000;
-        await new Promise(resolve => setTimeout(resolve, randomPauseTime));
+        setTimeout(() => {
+            clearInterval(intervalId);
+            // 暂停 10 秒
+            setTimeout(() => {
+                // 随机加快速度
+                let randomSpeedFactor = Math.random() * 2 + 1; // 1 到 3 之间的随机数
+                speed = originalSpeed * randomSpeedFactor;
+                // 以新速度滚动 4 秒
+                intervalId = setInterval(scrollPage, 10);
+                setTimeout(() => {
+                    clearInterval(intervalId);
+                    // 恢复原始速度
+                    speed = originalSpeed;
+                    // 以原始速度滚动 1 秒
+                    intervalId = setInterval(scrollPage, 10);
+                    setTimeout(() => {
+                        clearInterval(intervalId);
+                        // 随机暂停不低于 20 秒且不超过 1 分钟
+                        let randomPauseTime = Math.random() * 40000 + 20000;
+                        setTimeout(() => {
+                            if (isScrolling) {
+                                scrollLoop();
+                            }
+                        }, randomPauseTime);
+                    }, 1000);
+                }, 4000);
+            }, 10000);
+        }, 5000);
     }
 }
